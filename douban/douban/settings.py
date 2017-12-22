@@ -64,9 +64,18 @@ ROBOTSTXT_OBEY = False
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'douban.pipelines.DoubanPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'douban.pipelines.DoubanPipeline': 300,
+}
+
+#MONGODB 主机名
+MONGODB_HOST = "127.0.0.1"
+#MONGODB 端口号
+MONGODB_PORT = 27017
+#MONGODB 数据库名称
+MONGODB_DBNAME = "Douban"
+#MONGODB 存放数据的表名称
+MONGODB_SHEETNAME = "doubanmovies"
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
