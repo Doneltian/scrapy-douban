@@ -56,6 +56,13 @@ ROBOTSTXT_OBEY = False
 #    'douban.middlewares.MyCustomDownloaderMiddleware': 543,
 #}
 
+# DOWNLOADER_MIDDLEWARES = {
+#     'Lagou.middlewares.RandomProxyMiddleware':542,
+#    'Lagou.middlewares.RandomUserAgentMiddleware': 543,
+#    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware':None, #这里要设置原来的scrapy的useragent为None，否者会被覆盖掉
+# }
+# RANDOM_UA_TYPE='random'
+
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
 #EXTENSIONS = {
@@ -74,8 +81,12 @@ MONGODB_HOST = "127.0.0.1"
 MONGODB_PORT = 27017
 #MONGODB 数据库名称
 MONGODB_DBNAME = "Douban"
-#MONGODB 存放数据的表名称
-MONGODB_SHEETNAME = "doubanmovies"
+#MONGODB 存放电影数据的表名称
+MONGODB_MOVIEITEM = "doubanmovies"
+#MONGODB 存放电影详情的表名称
+MONGODB_MOVIEDETAIL= "moviedetail"
+
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -97,3 +108,5 @@ MONGODB_SHEETNAME = "doubanmovies"
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+

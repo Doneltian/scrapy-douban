@@ -4,7 +4,7 @@ from douban.items import MovieItem
 
 
 class Movie250Spider(scrapy.Spider):
-    #定义爬虫名称，主要main方法使用
+    # 定义爬虫名称，主要main方法使用
     name = 'doubanmovie'
     allowed_domains = ["douban.com"]
     start_urls = ["https://movie.douban.com/top250"]

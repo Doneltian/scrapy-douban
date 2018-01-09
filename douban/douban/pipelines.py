@@ -6,6 +6,8 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 from scrapy.conf import settings
+from douban.items import MovieItemDetail
+from douban.items import MovieItem
 
 
 class DoubanPipeline(object):
@@ -13,24 +15,41 @@ class DoubanPipeline(object):
         host = settings["MONGODB_HOST"]
         port = settings["MONGODB_PORT"]
         dbname = settings["MONGODB_DBNAME"]
-        sheetname = settings["MONGODB_SHEETNAME"]
+        self.collectionname_movieitem = settings["MONGODB_MOVIEITEM"]
+        self.collectionname_moviedetail = settings["MONGODB_MOVIEDETAIL"]
 
-        #创建数据库库链接
+        # 创建数据库库链接
         client = pymongo.MongoClient(host=host,port=port)
 
-        #指定数据库
+        # 指定数据库
         mydb = client[dbname]
 
-        #存放数据的数据库表名
-        self.post = mydb[sheetname]
+        # 存放电影条目数据的集合名
+        self.col_movieitem = mydb[self.collectionname_movieitem]
+
+        # 存放电影详情的集合名
+        # self.col_moviedetail = mydb[self.collectionname_moviedetail]
 
     def process_item(self, item, spider):
-        data = dict(item)
-        self.post.insert(data)
+        if isinstance(item, MovieItem):
+            DoubanPipeline.handle_movieitem(self, item)
+        elif isinstance(item, MovieItemDetail):
+            DoubanPipeline.handle_movieitemdetail(self, item)
+        else:
+            pass
         return item
 
 
-# class MoviePipeline(object):
-#     def process_item(self, item, spider):
-#         with open("my_meiju.txt",'a') as fp:
-#             fp.write(item['name'].encode("utf8") + '\n')
+    """
+    处理电影条目
+    """
+    def handle_movieitem(self, item):
+        data = dict(item)
+        self.col_movieitem.insert(data)
+
+    """
+    处理电影明细
+    """
+    def handle_movieitemdetail(self, item):
+        self.col_movieitem.update({"title": item["title"]}, {"$set": {"detail": item}})
+        return item
