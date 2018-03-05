@@ -1,87 +1,103 @@
-# -*- coding: utf-8 -*-
+from scrapy import log
+import random
+from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
+from scrapy.contrib.downloadermiddleware.httpproxy import HttpProxyMiddleware
+import scrapy
+import time
+import requests
+from douban.settings import IPPOOL
 
-# Define here the models for your spider middleware
-#
-# See documentation in:
-# http://doc.scrapy.org/en/latest/topics/spider-middleware.html
-
-from scrapy import signals
-from fake_useragent import UserAgent #这是一个随机UserAgent的包，里面有很多UserAgent
-
-class DoubanSpiderMiddleware(object):
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the spider middleware does not modify the
-    # passed objects.
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        return s
-
-    def process_spider_input(self, response, spider):
-        # Called for each response that goes through the spider
-        # middleware and into the spider.
-
-        # Should return None or raise an exception.
-        return None
-
-    def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the Spider, after
-        # it has processed the response.
-
-        # Must return an iterable of Request, dict or Item objects.
-        for i in result:
-            yield i
-
-    def process_spider_exception(self, response, exception, spider):
-        # Called when a spider or process_spider_input() method
-        # (from other spider middleware) raises an exception.
-
-        # Should return either None or an iterable of Response, dict
-        # or Item objects.
-        pass
-
-    def process_start_requests(self, start_requests, spider):
-        # Called with the start requests of the spider, and works
-        # similarly to the process_spider_output() method, except
-        # that it doesn’t have a response associated.
-
-        # Must return only requests (not items).
-        for r in start_requests:
-            yield r
-
-    def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
-
-
-class RandomUserAgentMiddleware(object):
-    def __init__(self, crawler):
-        super(RandomUserAgentMiddleware, self).__init__()
-
-        self.ua = UserAgent()
-        self.ua_type = crawler.settings.get('RANDOM_UA_TYPE', 'random') #从setting文件中读取RANDOM_UA_TYPE值
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(crawler)
+class RotateUserAgentMiddleware(UserAgentMiddleware):
+    def __init__(self,user_agent=''):
+        self.user_agent = user_agent
 
     def process_request(self, request, spider):
-        def get_ua():
-            '''Gets random UA based on the type setting (random, firefox…)'''
-            return getattr(self.ua, self.ua_type)
+        ua = random.choice(self.user_agent_list)
+        if ua:
+            print('Current UserAgent:%s'+ua)
+            log.msg('Current UserAgent:'+ua)
+            request.headers.setdefault('User-Agent',ua)
 
-        user_agent_random=get_ua()
-        request.headers.setdefault('User-Agent', user_agent_random) #这样就是实现了User-Agent的随即变换
+    user_agent_list = [ \
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 "
+        "(KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
+        "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 "
+        "(KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 "
+        "(KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6",
+        "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 "
+        "(KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6",
+        "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 "
+        "(KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 "
+        "(KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5",
+        "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 "
+        "(KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 "
+        "(KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 "
+        "(KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24",
+        "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 "
+        "(KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
+    ]
 
 
-class RandomProxyMiddleware(object):
-    '''动态设置ip代理'''
-    def process_request(self,request,spider):
-        # get_ip = GetIP() #这里的函数是传值ip的
-        # request.meta["proxy"] = get_ip
-        #例如
-        #get_ip = GetIP() #这里的函数是传值ip的
-        #request.meta["proxy"] = 'http://110.73.54.0:8123'
-        pass
+class MyproxiesSpiderMiddleware(object):
+    def process_response(self,request,response,spider):
+        '''对返回的response处理'''
+        # 如果返回的response状态不是200，重新生成当前request对象
+        if response.status != 200:
+            proxy = self.get_random_proxy()
+            print("this is response ip:" + proxy)
+            # 对当前reque加上代理
+            request.meta['proxy'] = proxy
+            return request
+        return response
+
+    def get_random_proxy(self):
+        '''随机从文件读取proxy'''
+        while 1:
+            with open('proxies.txt') as f:
+                proxies = f.readlines()
+            if proxies:
+                break
+            else:
+                time.sleep(1)
+        proxy = random.choice(proxies).strip()
+        return proxy
+
+    def process_request(self, request, spider):
+        '''对request对象加上proxy'''
+        # proxy = self.get_random_proxy()
+        # print("this is request ip:" + proxy)
+        # request.meta['proxy'] = proxy
+
+
+        thisip = random.choice(IPPOOL)
+        print("this is ip:" + thisip["ipaddr"])
+        request.meta["proxy"] = "http://" + thisip["ipaddr"]
+
+# class MyproxiesSpiderShouDongMiddleware(object):
+#     def __init__(self, ip=''):
+#         self.ip = ip
+#
+#     def process_request(self, request, spider):
+#         thisip = random.choice(IPPOOL)
+#         print("this is ip:" + thisip["ipaddr"])
+#         request.meta["proxy"] = "http://" + thisip["ipaddr"]

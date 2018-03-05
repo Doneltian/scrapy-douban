@@ -15,8 +15,7 @@ import re
 
 class MovieCrawlSpider(CrawlSpider):
     name = "MovieCrawlSpider"
-    # 设置下载延时
-    download_delay = 2
+
     allowed_domains = ["movie.douban.com"]
     # 第一个地址
     start_urls = ['https://movie.douban.com/top250?start=0&filter=']

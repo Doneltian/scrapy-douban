@@ -27,13 +27,17 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 2
 # The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
-#CONCURRENT_REQUESTS_PER_IP = 16
 
+CONCURRENT_REQUESTS = 4
+CONCURRENT_REQUESTS_PER_DOMAIN = 4
+# CONCURRENT_REQUESTS_PER_IP = 16
+
+DEPTH_LIMIT = 2
+DOWNLOAD_TIMEOUT = 10
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -55,6 +59,17 @@ ROBOTSTXT_OBEY = False
 #DOWNLOADER_MIDDLEWARES = {
 #    'douban.middlewares.MyCustomDownloaderMiddleware': 543,
 #}
+
+
+
+# 取消默认的useragent,使用新的useragent
+DOWNLOADER_MIDDLEWARES = {
+        'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+        # 'douban.middlewares.MyproxiesSpiderMiddleware':125,
+        # 'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware':543,
+        'douban.middlewares.RotateUserAgentMiddleware' : 125
+    }
+
 
 # DOWNLOADER_MIDDLEWARES = {
 #     'Lagou.middlewares.RandomProxyMiddleware':542,
@@ -109,4 +124,10 @@ MONGODB_MOVIEDETAIL= "moviedetail"
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-
+IPPOOL=[
+    {"ipaddr":"183.232.189.49:80"},
+    {"ipaddr":"43.226.162.23:80"},
+    {"ipaddr":"183.232.188.23:80"},
+    {"ipaddr":"60.205.228.133:9999"},
+    {"ipaddr":"211.142.22.24:8080"},
+]
